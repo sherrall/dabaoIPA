@@ -8,7 +8,7 @@ struct HomeView: View {
         NavigationStack {
             VStack(spacing: 28) {
                 if let target = store.activeTarget {
-                    PauseFlowView(target: target, isBreathing: $isBreathing)
+                    PauseFlowView(isBreathing: $isBreathing, target: target)
                 } else {
                     idleView
                 }
