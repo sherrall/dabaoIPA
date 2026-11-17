@@ -1,0 +1,46 @@
+name: Build Unsigned IPA
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install XcodeGen
+        run: brew install xcodegen
+
+      - name: Generate Xcode project
+        working-directory: Helpe
+        run: xcodegen generate
+
+      - name: Build iOS app
+        working-directory: Helpe
+        run: |
+          xcodebuild \
+            -project Helpe.xcodeproj \
+            -scheme Helpe \
+            -configuration Release \
+            -sdk iphoneos \
+            -derivedDataPath build \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGN_IDENTITY=""
+
+      - name: Package IPA
+        working-directory: Helpe
+        run: |
+          mkdir Payload
+          cp -R build/Build/Products/Release-iphoneos/Helpe.app Payload/Helpe.app
+          if command -v ldid >/dev/null 2>&1; then
+            ldid -S Payload/Helpe.app/Helpe
+          fi
+          zip -qry Helpe.ipa Payload
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Helpe-unsigned-ipa
+          path: Helpe/Helpe.ipa
