@@ -66,7 +66,10 @@ struct PauseFlowView: View {
             Text("Open \(target.name)?")
                 .font(.title2.weight(.semibold))
 
-            TextField("What is your intention?", text: $store.intention)
+            TextField(
+                "What is your intention?",
+                text: Binding(get: { store.intention }, set: { store.intention = $0 })
+            )
                 .textFieldStyle(.roundedBorder)
                 .padding(.horizontal, 12)
 
